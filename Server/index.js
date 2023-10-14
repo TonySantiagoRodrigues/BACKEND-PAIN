@@ -11,6 +11,11 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Endpoint de Verificação
+app.get("/status", (req, res) => {
+    res.send("Server is running!");
+});
+
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
