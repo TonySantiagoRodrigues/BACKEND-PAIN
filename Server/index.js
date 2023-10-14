@@ -17,6 +17,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions)); // Aplicar as configurações CORS
 
+// Servir arquivos estáticos, incluindo o favicon.ico
+app.use(express.static(__dirname));
+
+
 // Endpoint de Verificação
 app.get("/status", (req, res) => {
     res.send("Server is running!");
