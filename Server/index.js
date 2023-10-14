@@ -9,7 +9,13 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
-app.use(cors());
+
+// Configuração do CORS
+const corsOptions = {
+  origin: "https://dazzling-youtiao-f5997c.netlify.app/", // Especifique a URL do seu front-end aqui
+};
+
+app.use(cors(corsOptions)); // Aplicar as configurações CORS
 
 // Endpoint de Verificação
 app.get("/status", (req, res) => {
