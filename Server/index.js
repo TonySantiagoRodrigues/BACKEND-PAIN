@@ -10,17 +10,18 @@ const app = express();
 // Middlewares
 app.use(express.json());
 
-// Configuração do CORS
-const corsOptions = {
-    origin: "https://frontend-pain.vercel.app",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: ["Content-Type", "Authorization"],
-    optionsSuccessStatus: 204,
-    credentials: true, // permite cookies de sessão a serem enviados e recebidos
-};
-
-app.use(cors(corsOptions)); // Aplicar as configurações CORS
-app.options("*", cors(corsOptions)); // Adicionado para lidar com requisições preflight
+// Configuração avançada do CORS
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "https://frontend-pain.vercel.app");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header("Access-Control-Allow-Credentials", "true");
+    if ('OPTIONS' === req.method) {
+        res.sendStatus(204);
+    } else {
+        next();
+    }
+});
 
 // Servir arquivos estáticos, incluindo o favicon.ico
 app.use(express.static(__dirname));
