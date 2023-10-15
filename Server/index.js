@@ -12,7 +12,7 @@ app.use(express.json());
 
 // Configuração do CORS
 const corsOptions = {
-  origin: "https://dazzling-youtiao-f5997c.netlify.app/", // Especifique a URL do seu front-end aqui
+  origin: "https://frontend-pain.vercel.app/", // Especifique a URL do seu front-end aqui
 };
 
 app.use(cors(corsOptions)); // Aplicar as configurações CORS
