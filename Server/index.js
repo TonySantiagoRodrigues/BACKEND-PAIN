@@ -12,14 +12,19 @@ app.use(express.json());
 
 // Configuração do CORS
 const corsOptions = {
-  origin: "https://frontend-pain.vercel.app/", // Especifique a URL do seu front-end aqui
-};
+    origin: "https://frontend-pain-4h1px8i58-tams2leticia-gmailcom.vercel.app/", // Nova URL do seu front-end
+  };
+  
 
 app.use(cors(corsOptions)); // Aplicar as configurações CORS
 
 // Servir arquivos estáticos, incluindo o favicon.ico
 app.use(express.static(__dirname));
 
+// Rota específica para o favicon.ico
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(__dirname + '/favicon.ico');
+});
 
 // Endpoint de Verificação
 app.get("/status", (req, res) => {
