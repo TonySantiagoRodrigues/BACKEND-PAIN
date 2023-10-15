@@ -12,9 +12,9 @@ app.use(express.json());
 
 // Configuração do CORS
 const corsOptions = {
-    origin: "https://frontend-pain-4h1px8i58-tams2leticia-gmailcom.vercel.app/", // Nova URL do seu front-end
-  };
-  
+    origin: "https://frontend-pain.vercel.app", // URL padrão do seu frontend
+};
+
 
 app.use(cors(corsOptions)); // Aplicar as configurações CORS
 
