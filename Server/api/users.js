@@ -7,11 +7,12 @@ const router = express.Router();
 const { User, validate } = require("../models/user");
 const { gerarCodigoUnico } = require('../utils');
 
+// Criar uma única instância de transportador de e-mail
 let transporter = nodemailer.createTransport({
     service: 'hotmail',
     auth: {
-        user: process.env.HOTMAIL_USER, // Usando variável de ambiente para o e-mail do Hotmail
-        pass: process.env.HOTMAIL_PASS  // Usando variável de ambiente para a senha do Hotmail
+        user: process.env.HOTMAIL_USER,
+        pass: process.env.HOTMAIL_PASS
     }
 });
 
@@ -21,13 +22,12 @@ router.post("/", async (req, res) => {
         if (error) return res.status(400).send({ message: error.details[0].message });
 
         let user = await User.findOne({ email: req.body.email });
-        if (user) return res.status(409).send({ message: "User with given email already Exist!" });
+        if (user) return res.status(409).send({ message: "User with given email already exists!" });
 
         const salt = await bcrypt.genSalt(Number(process.env.SALT));
         const hashPassword = await bcrypt.hash(req.body.password, salt);
 
         const ip = req.ip || req.connection.remoteAddress;
-        const { deviceId } = req.body;
 
         const approvalCode = gerarCodigoUnico();  
 
@@ -35,30 +35,25 @@ router.post("/", async (req, res) => {
             ...req.body,
             password: hashPassword,
             lastKnownIp: ip,
-            deviceId: deviceId,
+            deviceId: req.body.deviceId,
             approvalCode: approvalCode
         });
         await user.save();
 
-        // Enviando o e-mail
+        // Enviando o e-mail usando async/await
         let mailOptions = {
-            from: process.env.HOTMAIL_USER, // Usando variável de ambiente para o e-mail do Hotmail
-            to: process.env.ADMIN_EMAIL,  // Mantendo a variável de ambiente para o e-mail do administrador
+            from: process.env.HOTMAIL_USER,
+            to: process.env.ADMIN_EMAIL,
             subject: "Seu código de aprovação",
             text: `Seu código de aprovação é: ${approvalCode}`
         };
 
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.log(error);
-                return res.status(500).send({ message: "Error sending the email" });
-            } else {
-                console.log('Email sent: ' + info.response);
-                return res.status(201).send({ message: "User created successfully" });
-            }
-        });
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully');
+        return res.status(201).send({ message: "User created successfully" });
 
     } catch (error) {
+        console.error("Error in user registration:", error);  // Log de erro detalhado
         res.status(500).send({ message: "Internal Server Error" });
     }
 });

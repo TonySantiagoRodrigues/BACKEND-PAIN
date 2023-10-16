@@ -1,25 +1,29 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
+const morgan = require("morgan");
 const connection = require("./db");
 const userRoutes = require("./api/users");
 const authRoutes = require("./api/auth");
 
 const app = express();
 
+// Middlewares de segurança e logging
+app.use(helmet());
+app.use(morgan('tiny'));
 
-// Middlewares
+// Middleware para parsing JSON
 app.use(express.json());
 
 // Configuração simplificada do CORS usando o pacote cors
 const corsOptions = {
-    origin: 'https://frontend-pain.vercel.app', // URL de origem permitida
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos HTTP permitidos
-    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Cabeçalhos permitidos
-    credentials: true, // Permite o envio de cookies ou credenciais
-    optionsSuccessStatus: 200 // Responde com 200 para o preflight OPTIONS request
+    origin: 'https://frontend-pain.vercel.app',
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    credentials: true,
+    optionsSuccessStatus: 200
 };
-
 app.use(cors(corsOptions));
 
 // Servir arquivos estáticos, incluindo o favicon.ico
@@ -39,11 +43,17 @@ app.get("/status", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 
+// Middleware de tratamento de erros
+app.use((err, req, res, next) => {
+    console.error(err.stack);  // Imprime detalhes do erro no console
+    res.status(500).send({ message: 'Internal Server Error' });
+});
+
 // Database connection
 connection();
 
 const port = process.env.PORT || 9000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-    console.log(`Using MongoDB at: ${process.env.MONGO_URL}`);
+    console.log(`Connected to MongoDB`);
 });

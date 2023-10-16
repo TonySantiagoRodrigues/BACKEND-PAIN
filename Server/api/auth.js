@@ -11,14 +11,12 @@ router.post("/", async (req, res) => {
         if (error) return res.status(400).send({ message: error.details[0].message });
 
         const user = await User.findOne({ email: req.body.email });
-        if (!user) return res.status(401).send({ message: "Invalid Email or Password" });
+        if (!user || !await bcrypt.compare(req.body.password, user.password)) {
+            return res.status(401).send({ message: "Invalid credentials" }); // Mensagem generalizada
+        }
 
-        const validPassword = await bcrypt.compare(req.body.password, user.password);
-        if (!validPassword) return res.status(401).send({ message: "Invalid Email or Password" });
-
-        // Verificação do approvalCode
         if (user.approvalCode !== req.body.approvalCode) {
-            return res.status(401).send({ message: "Invalid Approval Code" });
+            return res.status(401).send({ message: "Invalid credentials" });
         }
 
         const ip = req.ip || req.connection.remoteAddress;
@@ -35,8 +33,8 @@ router.post("/", async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'hotmail',
             auth: {
-                user: process.env.EMAIL_USER,  // Configurar isso em seu arquivo .env
-                pass: process.env.EMAIL_PASS   // Configurar isso em seu arquivo .env
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             }
         });
 
@@ -72,8 +70,8 @@ const validate = (data) => {
     const schema = Joi.object({
         email: Joi.string().email().required().label("Email"),
         password: Joi.string().required().label("Password"),
-        deviceId: Joi.string().required().label("Device ID"),
-        approvalCode: Joi.string().required().label("Approval Code"),
+        deviceId: Joi.string().min(5).max(50).required().label("Device ID"), // Ajuste conforme necessário
+        approvalCode: Joi.string().length(8).required().label("Approval Code"), // Supondo um comprimento de 8
     });
     return schema.validate(data);
 };
