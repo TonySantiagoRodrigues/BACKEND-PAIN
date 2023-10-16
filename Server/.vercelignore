@@ -1,4 +1,4 @@
-!node_modules/geoip-lite/data/geoip-country.dat
+!node_modules/geoip-lite/
 node_modules/
 .vercel/
 .env
