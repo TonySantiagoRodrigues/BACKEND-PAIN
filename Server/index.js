@@ -12,10 +12,11 @@ app.use(express.json());
 
 // Configuração simplificada do CORS usando o pacote cors
 const corsOptions = {
-    origin: 'https://frontend-pain.vercel.app',
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    credentials: true
+    origin: 'https://frontend-pain.vercel.app', // URL de origem permitida
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos HTTP permitidos
+    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Cabeçalhos permitidos
+    credentials: true, // Permite o envio de cookies ou credenciais
+    optionsSuccessStatus: 200 // Responde com 200 para o preflight OPTIONS request
 };
 
 app.use(cors(corsOptions));
