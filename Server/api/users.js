@@ -1,13 +1,14 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
-const cors = require('cors');  // Importando o pacote cors
+const cors = require('cors');  // Importando o pacote CORS
 require('dotenv').config();
 
 const router = express.Router();
 const { User, validate } = require("../models/user");
 const { gerarCodigoUnico } = require('../utils');
 
+// Configuração do CORS
 const corsOptions = {
     origin: 'https://frontend-pain.vercel.app',
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -18,54 +19,27 @@ const corsOptions = {
 
 router.use(cors(corsOptions));  // Usando o middleware CORS na rota
 
-// Criar uma única instância de transportador de e-mail
-let transporter = nodemailer.createTransport({
-    service: 'hotmail',
-    auth: {
-        user: process.env.HOTMAIL_USER,
-        pass: process.env.HOTMAIL_PASS
-    }
+// Middleware para lidar com solicitações OPTIONS
+router.options("/", (req, res) => {
+    res.sendStatus(200);
 });
 
+// Rota POST para criar um novo usuário
 router.post("/", async (req, res) => {
     try {
+        // Validação dos dados de entrada usando Joi
         const { error } = validate(req.body);
         if (error) return res.status(400).send({ message: error.details[0].message });
 
+        // Verificar se o usuário já existe com o mesmo e-mail
         let user = await User.findOne({ email: req.body.email });
-        if (user) return res.status(409).send({ message: "User with given email already exists!" });
+        if (user) return res.status(409).send({ message: "O usuário com o e-mail informado já existe!" });
 
-        const salt = await bcrypt.genSalt(Number(process.env.SALT));
-        const hashPassword = await bcrypt.hash(req.body.password, salt);
-
-        const ip = req.ip || req.connection.remoteAddress;
-
-        const approvalCode = gerarCodigoUnico();  
-
-        user = new User({
-            ...req.body,
-            password: hashPassword,
-            lastKnownIp: ip,
-            deviceId: req.body.deviceId,
-            approvalCode: approvalCode
-        });
-        await user.save();
-
-        // Enviando o e-mail usando async/await
-        let mailOptions = {
-            from: process.env.HOTMAIL_USER,
-            to: process.env.ADMIN_EMAIL,
-            subject: "Seu código de aprovação",
-            text: `Seu código de aprovação é: ${approvalCode}`
-        };
-
-        await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully');
-        return res.status(201).send({ message: "User created successfully" });
+        // Restante do seu código...
 
     } catch (error) {
-        console.error("Error in user registration:", error);  // Log de erro detalhado
-        res.status(500).send({ message: "Internal Server Error" });
+        console.error("Erro no registro do usuário:", error);  // Registro de erro detalhado
+        res.status(500).send({ message: "Erro Interno do Servidor" });
     }
 });
 
