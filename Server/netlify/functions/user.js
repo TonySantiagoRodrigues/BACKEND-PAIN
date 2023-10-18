@@ -1,8 +1,8 @@
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 require('dotenv').config();
-const { User, validate } = require("../models/user");
-const { gerarCodigoUnico } = require('../utils');
+const { User, validate } = require("../../models/user");
+const { gerarCodigoUnico } = require('../../utils');
 
 let transporter = nodemailer.createTransport({
     service: 'hotmail',
