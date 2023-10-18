@@ -1,11 +1,22 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
+const cors = require('cors');  // Importando o pacote cors
 require('dotenv').config();
 
 const router = express.Router();
 const { User, validate } = require("../models/user");
 const { gerarCodigoUnico } = require('../utils');
+
+const corsOptions = {
+    origin: 'https://frontend-pain.vercel.app',
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
+router.use(cors(corsOptions));  // Usando o middleware CORS na rota
 
 // Criar uma única instância de transportador de e-mail
 let transporter = nodemailer.createTransport({

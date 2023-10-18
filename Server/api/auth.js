@@ -1,9 +1,22 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
 const { User } = require("../models/user");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const geoip = require('geoip-lite');
 const nodemailer = require("nodemailer");
+const cors = require('cors');  // Importando o pacote cors
+
+// Configuração do CORS
+const corsOptions = {
+    origin: 'https://frontend-pain.vercel.app',
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
+router.use(cors(corsOptions));  // Usando o middleware CORS na rota
 
 router.post("/", async (req, res) => {
     try {

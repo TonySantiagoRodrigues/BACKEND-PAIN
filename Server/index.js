@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const connection = require("./db");
@@ -15,16 +14,6 @@ app.use(morgan('tiny'));
 
 // Middleware para parsing JSON
 app.use(express.json());
-
-// Configuração simplificada do CORS usando o pacote cors
-const corsOptions = {
-    origin: 'https://frontend-pain.vercel.app',
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    credentials: true,
-    optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
 
 // Servir arquivos estáticos, incluindo o favicon.ico
 app.use(express.static(__dirname));
