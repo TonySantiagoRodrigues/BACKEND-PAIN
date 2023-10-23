@@ -22,9 +22,8 @@
     "mongoose": "^6.9.0",
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.6",
-    "server": "^1.0.38"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "server": "^1.0.38",
+    "Server": "^1.0.0"
   }
 }

@@ -1,22 +1,9 @@
-const express = require("express");
-const router = express.Router();
+const router = require("express").Router();
 const { User } = require("../models/user");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const geoip = require('geoip-lite');
 const nodemailer = require("nodemailer");
-const cors = require('cors');  // Importando o pacote cors
-
-// Configuração do CORS
-const corsOptions = {
-    origin: 'https://frontend-pain.vercel.app',
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    credentials: true,
-    optionsSuccessStatus: 200
-};
-
-router.use(cors(corsOptions));  // Usando o middleware CORS na rota
 
 router.post("/", async (req, res) => {
     try {
@@ -24,12 +11,14 @@ router.post("/", async (req, res) => {
         if (error) return res.status(400).send({ message: error.details[0].message });
 
         const user = await User.findOne({ email: req.body.email });
-        if (!user || !await bcrypt.compare(req.body.password, user.password)) {
-            return res.status(401).send({ message: "Invalid credentials" }); // Mensagem generalizada
-        }
+        if (!user) return res.status(401).send({ message: "Invalid Email or Password" });
 
+        const validPassword = await bcrypt.compare(req.body.password, user.password);
+        if (!validPassword) return res.status(401).send({ message: "Invalid Email or Password" });
+
+        // Verificação do approvalCode
         if (user.approvalCode !== req.body.approvalCode) {
-            return res.status(401).send({ message: "Invalid credentials" });
+            return res.status(401).send({ message: "Invalid Approval Code" });
         }
 
         const ip = req.ip || req.connection.remoteAddress;
@@ -46,8 +35,8 @@ router.post("/", async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'hotmail',
             auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
+                user: process.env.EMAIL_USER,  // Configurar isso em seu arquivo .env
+                pass: process.env.EMAIL_PASS   // Configurar isso em seu arquivo .env
             }
         });
 
@@ -83,8 +72,8 @@ const validate = (data) => {
     const schema = Joi.object({
         email: Joi.string().email().required().label("Email"),
         password: Joi.string().required().label("Password"),
-        deviceId: Joi.string().min(5).max(50).required().label("Device ID"), // Ajuste conforme necessário
-        approvalCode: Joi.string().length(8).required().label("Approval Code"), // Supondo um comprimento de 8
+        deviceId: Joi.string().required().label("Device ID"),
+        approvalCode: Joi.string().required().label("Approval Code"),
     });
     return schema.validate(data);
 };
